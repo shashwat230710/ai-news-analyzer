@@ -22,6 +22,7 @@ router.post("/", async (req, res) => {
     // Step 1: Extract article if URL
     if (url) {
       content = await extractArticle(url);
+      console.log("Extracted content:", content?.slice(0, 200));
 
       if (!content) {
         return res.status(400).json({

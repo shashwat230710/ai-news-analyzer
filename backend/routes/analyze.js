@@ -7,6 +7,9 @@ const { verifyClaim } = require("../services/verificationService");
 const { calculateScore } = require("../services/scoreService");
 
 router.post("/", async (req, res) => {
+  router.get("/", (req, res) => {
+  res.send("API is working. Use POST request to /analyze");
+});
   const { text, url } = req.body;
 
   let content = text;

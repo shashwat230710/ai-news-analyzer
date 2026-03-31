@@ -1,15 +1,19 @@
 const express = require("express");
 const router = express.Router();
+
 const { analyzeBias } = require("../services/biasService");
 const { extractArticle } = require("../services/articleService");
 const { extractClaims } = require("../services/claimService");
 const { verifyClaim } = require("../services/verificationService");
 const { calculateScore } = require("../services/scoreService");
 
-router.post("/", async (req, res) => {
-  router.get("/", (req, res) => {
+// ✅ GET route (OUTSIDE post)
+router.get("/", (req, res) => {
   res.send("API is working. Use POST request to /analyze");
 });
+
+// ✅ MAIN POST ROUTE
+router.post("/", async (req, res) => {
   const { text, url } = req.body;
 
   let content = text;
@@ -35,22 +39,23 @@ router.post("/", async (req, res) => {
     // Step 2: Extract claims
     const claims = await extractClaims(content);
 
-    // Step 3: Verify claims (parallel for speed)
+    // Step 3: Verify claims
     const results = await Promise.all(
       claims.map((claim) => verifyClaim(claim))
     );
-    
-    // 🔥 Bias analysis (whole article)
+
+    // Step 4: Bias
     const bias = await analyzeBias(content);
-    // Step 5: Score (CORRECT PLACE)
+
+    // Step 5: Score
     const score = calculateScore(results, bias);
+
     res.json({
       success: true,
       results,
       bias,
-      score
+      score,
     });
-    
 
   } catch (error) {
     console.error(error);
